@@ -1,0 +1,117 @@
+﻿<UserControl x:Class="Saper.Views.GameView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:Saper.Data.ViewModels;assembly=Saper.Data"
+             xmlns:v="clr-namespace:Saper.Views"
+             xmlns:local="clr-namespace:Saper.Views"
+             xmlns:helpers="clr-namespace:Saper.Helpers"
+             xmlns:ts="clr-namespace:Saper.TemplateSelectors"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+  <UserControl.DataContext>
+    <vm:GameViewModel/>
+  </UserControl.DataContext>
+  <UserControl.Resources>
+    <helpers:BindingProxy Data="{Binding}" x:Key="proxy"/>
+  </UserControl.Resources>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <ItemsControl ItemsSource="{Binding Board.Fields}" IsEnabled="{Binding IsEnabled, UpdateSourceTrigger=PropertyChanged}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <UniformGrid Columns="{Binding Path=Board.Columns}" 
+                       Rows="{Binding Path=Board.Rows}"/>
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Border Height="40" Width="40" Margin="1">
+            <Border.Resources>
+              <helpers:FieldProxy Field="{Binding}" x:Key="filedProxy"/>
+            </Border.Resources>
+            <ContentControl Content="{Binding State, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+              <ContentControl.ContentTemplateSelector>
+                <ts:FieldTemplateSelector Proxy="{StaticResource filedProxy}">
+                  <ts:FieldTemplateSelector.Default>
+                    <DataTemplate>
+                      <Border Background="LightSlateGray"/>
+                    </DataTemplate>
+                  </ts:FieldTemplateSelector.Default>
+                  <ts:FieldTemplateSelector.Empty>
+                    <DataTemplate>
+                      <Border Background="White"/>
+                    </DataTemplate>
+                  </ts:FieldTemplateSelector.Empty>
+                  <ts:FieldTemplateSelector.Mine>
+                    <DataTemplate>
+                      <Border Background="Coral">
+                        <Image Source="pack://application:,,,/Images/mine-64.png"/>
+                      </Border>
+                    </DataTemplate>
+                  </ts:FieldTemplateSelector.Mine>
+                  <ts:FieldTemplateSelector.Coverd>
+                    <DataTemplate>
+                      <Border Background="Azure">
+                        <Image Source="pack://application:,,,/Images/flag-2-64.png"/>
+                      </Border>
+                    </DataTemplate>
+                  </ts:FieldTemplateSelector.Coverd>
+                  <ts:FieldTemplateSelector.Ask>
+                    <DataTemplate>
+                      <Border Background="Azure">
+                        <TextBlock Text="?" Foreground="Blue" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                      </Border>
+                    </DataTemplate>
+                  </ts:FieldTemplateSelector.Ask>
+                  <ts:FieldTemplateSelector.Number>
+                    <DataTemplate>
+                      <Border Background="LightSteelBlue">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Text="{Binding Field.Value, Source={StaticResource filedProxy}, UpdateSourceTrigger=PropertyChanged}" FontSize="15"/>
+                      </Border>
+                    </DataTemplate>
+                  </ts:FieldTemplateSelector.Number>
+                </ts:FieldTemplateSelector>
+              </ContentControl.ContentTemplateSelector>
+            </ContentControl>
+            <Border.InputBindings>
+              <MouseBinding MouseAction="LeftClick" Command="{Binding Data.ShowCommand, Source={StaticResource proxy}}" CommandParameter="{Binding}"/>
+              <MouseBinding MouseAction="RightClick" Command="{Binding Data.CoverCommand, Source={StaticResource proxy}}" CommandParameter="{Binding}"/>
+            </Border.InputBindings>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <StackPanel Grid.Column="1" Margin="5,0">
+      <TextBlock Text="Saper" FontSize="20"/>
+      <TextBlock Foreground="{Binding MessageForeground, UpdateSourceTrigger=PropertyChanged}" Text="{Binding EndMessage ,UpdateSourceTrigger=PropertyChanged}" FontSize="20"/>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="Miny: "/>
+        <TextBlock Grid.Column="1">
+          <Run Text="{Binding CoverdFields, UpdateSourceTrigger=PropertyChanged}"/>
+          <Run Text="/"/>
+          <Run Text="{Binding Board.Mines, Mode=OneWay}"/>
+        </TextBlock>
+      </Grid>
+      <GroupBox Header="Gra">
+        <StackPanel>
+          <TextBlock Text="KOLUMNY:" FontSize="9"/>
+          <TextBox Text="{Binding Columns}"/>
+          <TextBlock Text="WIERSZE:" FontSize="9"/>
+          <TextBox Text="{Binding Rows}"/>
+          <TextBlock Text="MINY:" FontSize="9"/>
+          <TextBox Text="{Binding Mines}"/>
+          <Button Margin="5" Content="Nowa gra" Command="{Binding NewGameCommand}"/>
+        </StackPanel>
+      </GroupBox>
+    </StackPanel>
+  </Grid>
+</UserControl>
